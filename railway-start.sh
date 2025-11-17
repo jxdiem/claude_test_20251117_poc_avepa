@@ -9,6 +9,18 @@ echo "🔐 SECRET_KEY: ${SECRET_KEY:0:10}..."
 # Crea directory databases se non esiste
 mkdir -p /app/databases
 
+# Imposta DATABASE_DIR per tutti i servizi
+export DATABASE_DIR="/app/databases"
+
+# Verifica che gli script di inizializzazione esistano
+echo "🔍 Checking database initialization scripts..."
+if [ -d "/app/databases/init_scripts" ]; then
+    echo "✅ Init scripts directory found"
+    ls -la /app/databases/init_scripts/
+else
+    echo "❌ Init scripts directory NOT found!"
+fi
+
 # Verifica che SECRET_KEY sia impostato
 if [ -z "$SECRET_KEY" ]; then
     echo "⚠️  WARNING: SECRET_KEY not set, using default (NOT SECURE)"
