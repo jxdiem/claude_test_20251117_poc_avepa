@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  # Auth Service
+  auth-service:
+    build: ./services/auth
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./databases:/app/databases
+      - ./shared:/app/shared
+    environment:
+      - DATABASE_DIR=/app/databases
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+    networks:
+      - agri-network
+
+  # Beneficiary Service
+  beneficiary-service:
+    build: ./services/beneficiary
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./databases:/app/databases
+      - ./shared:/app/shared
+    environment:
+      - DATABASE_DIR=/app/databases
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+    networks:
+      - agri-network
+    depends_on:
+      - auth-service
+
+  # Request Service
+  request-service:
+    build: ./services/request
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./databases:/app/databases
+      - ./shared:/app/shared
+    environment:
+      - DATABASE_DIR=/app/databases
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+    networks:
+      - agri-network
+    depends_on:
+      - auth-service
+
+  # Calculation Service
+  calculation-service:
+    build: ./services/calculation
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./databases:/app/databases
+      - ./shared:/app/shared
+    environment:
+      - DATABASE_DIR=/app/databases
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+    networks:
+      - agri-network
+    depends_on:
+      - auth-service
+      - request-service
+      - admin-service
+
+  # Admin Service
+  admin-service:
+    build: ./services/admin
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./databases:/app/databases
+      - ./shared:/app/shared
+    environment:
+      - DATABASE_DIR=/app/databases
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+    networks:
+      - agri-network
+    depends_on:
+      - auth-service
+
+  # System Service
+  system-service:
+    build: ./services/system
+    ports:
+      - "8006:8006"
+    volumes:
+      - ./databases:/app/databases
+      - ./shared:/app/shared
+    environment:
+      - DATABASE_DIR=/app/databases
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - AUTH_SERVICE_URL=http://auth-service:8001
+      - BENEFICIARY_SERVICE_URL=http://beneficiary-service:8002
+      - REQUEST_SERVICE_URL=http://request-service:8003
+      - CALCULATION_SERVICE_URL=http://calculation-service:8004
+      - ADMIN_SERVICE_URL=http://admin-service:8005
+    networks:
+      - agri-network
+    depends_on:
+      - auth-service
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./shared:/app/shared
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - AUTH_SERVICE_URL=http://auth-service:8001
+      - BENEFICIARY_SERVICE_URL=http://beneficiary-service:8002
+      - REQUEST_SERVICE_URL=http://request-service:8003
+      - CALCULATION_SERVICE_URL=http://calculation-service:8004
+      - ADMIN_SERVICE_URL=http://admin-service:8005
+      - SYSTEM_SERVICE_URL=http://system-service:8006
+    networks:
+      - agri-network
+    depends_on:
+      - auth-service
+      - beneficiary-service
+      - request-service
+      - calculation-service
+      - admin-service
+      - system-service
+
+networks:
+  agri-network:
+    driver: bridge
+
+volumes:
+  databases:
