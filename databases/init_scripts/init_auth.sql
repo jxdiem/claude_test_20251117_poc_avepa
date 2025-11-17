@@ -41,10 +41,13 @@ END;
 
 -- Inserimento utenti di default per testing
 -- Password per tutti: "password123"
--- Hash generato con: salt$hash (vedere PasswordHasher in shared/auth_utils.py)
+-- Hash generato con pbkdf2_hmac SHA256, 100000 iterazioni (vedere PasswordHasher in shared/auth_utils.py)
 
-INSERT OR IGNORE INTO users (username, email, password_hash, role) VALUES
-    ('admin', 'admin@example.com', 'e5c8f2a1b3d4e5f6$8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'AMMINISTRATORE'),
-    ('sistemista', 'sistemista@example.com', 'f6d5e4c3b2a1e5f4$8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'SISTEMISTA'),
-    ('istruttore1', 'istruttore1@example.com', 'a1b2c3d4e5f6a7b8$8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'ISTRUTTORE'),
-    ('beneficiario1', 'beneficiario1@example.com', 'b8a7f6e5d4c3b2a1$8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'BENEFICIARIO');
+-- Rimuovi utenti di test esistenti e reinseriscili con hash corretti
+DELETE FROM users WHERE username IN ('admin', 'sistemista', 'istruttore1', 'beneficiario1');
+
+INSERT INTO users (username, email, password_hash, role) VALUES
+    ('admin', 'admin@example.com', 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6$72eea5c577564d9191afbb59c4db0e3f23864e5de290ad0dc81da0c8241f7dba', 'AMMINISTRATORE'),
+    ('sistemista', 'sistemista@example.com', 'b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7$8870bb3e991f77daa9831311b04849c1f54f6f1e55426ad9cc8f54467a1c3cb5', 'SISTEMISTA'),
+    ('istruttore1', 'istruttore1@example.com', 'c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8$9b0bdb10f37f4918eaf4fdf4553d3265eee10e3abecbff29d8ce9f7f4bccdb47', 'ISTRUTTORE'),
+    ('beneficiario1', 'beneficiario1@example.com', 'd4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9$58d39bdd62b679b6ce9688ca56537b50ae629acdfcc672a39d3ea14c34921d49', 'BENEFICIARIO');
