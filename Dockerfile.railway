@@ -34,8 +34,8 @@ COPY api-gateway/ /app/api-gateway/
 COPY frontend/ /app/frontend/
 
 # Crea directory per database e copia script di inizializzazione
-RUN mkdir -p /app/databases
-COPY databases/init_scripts/ /app/databases/init_scripts/
+RUN mkdir -p /app/databases/init_scripts
+COPY databases/init_scripts/*.sql /app/databases/init_scripts/
 
 # Copia configurazione supervisord
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
