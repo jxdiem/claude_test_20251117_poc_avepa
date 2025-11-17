@@ -1,0 +1,179 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository }}
+
+jobs:
+  # Job 1: Linting e Code Quality
+  lint:
+    name: Code Linting
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install linting dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pylint black isort
+
+    - name: Run Black (Code Formatter Check)
+      run: |
+        black --check --diff shared/ services/ api-gateway/ || true
+
+    - name: Run isort (Import Sorting Check)
+      run: |
+        isort --check-only --diff shared/ services/ api-gateway/ || true
+
+    - name: Run Flake8
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 shared/ services/ api-gateway/ --count --select=E9,F63,F7,F82 --show-source --statistics || true
+        # Exit-zero treats all errors as warnings
+        flake8 shared/ services/ api-gateway/ --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics || true
+
+    - name: Run Pylint
+      run: |
+        find shared/ services/ api-gateway/ -name "*.py" | xargs pylint --exit-zero --max-line-length=120 || true
+
+  # Job 2: Security Scanning (SAST)
+  security:
+    name: Security Analysis (SAST)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety semgrep
+
+    - name: Run Bandit (Python Security Linter)
+      run: |
+        bandit -r shared/ services/ api-gateway/ -f json -o bandit-report.json || true
+        bandit -r shared/ services/ api-gateway/ -ll -f screen || true
+
+    - name: Run Safety (Dependency Vulnerability Check)
+      run: |
+        # Check all requirements files for known vulnerabilities
+        find . -name "requirements.txt" -exec safety check --file {} \; || true
+
+    - name: Run Semgrep (SAST)
+      run: |
+        semgrep --config=auto shared/ services/ api-gateway/ --json --output=semgrep-report.json || true
+        semgrep --config=auto shared/ services/ api-gateway/ || true
+
+    - name: Upload Security Reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          semgrep-report.json
+
+  # Job 3: Build Docker Images
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [lint, security]
+    if: github.event_name == 'push'
+
+    strategy:
+      matrix:
+        service:
+          - name: api-gateway
+            context: ./api-gateway
+          - name: auth-service
+            context: ./services/auth
+          - name: beneficiary-service
+            context: ./services/beneficiary
+          - name: request-service
+            context: ./services/request
+          - name: calculation-service
+            context: ./services/calculation
+          - name: admin-service
+            context: ./services/admin
+          - name: system-service
+            context: ./services/system
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ${{ matrix.service.context }}
+        file: ${{ matrix.service.context }}/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  # Job 4: Summary Report
+  report:
+    name: Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [lint, security, build]
+    if: always()
+
+    steps:
+    - name: Pipeline Status
+      run: |
+        echo "## Pipeline Execution Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Linting**: ${{ needs.lint.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Security**: ${{ needs.security.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build**: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Images Built:" >> $GITHUB_STEP_SUMMARY
+        echo "- api-gateway" >> $GITHUB_STEP_SUMMARY
+        echo "- auth-service" >> $GITHUB_STEP_SUMMARY
+        echo "- beneficiary-service" >> $GITHUB_STEP_SUMMARY
+        echo "- request-service" >> $GITHUB_STEP_SUMMARY
+        echo "- calculation-service" >> $GITHUB_STEP_SUMMARY
+        echo "- admin-service" >> $GITHUB_STEP_SUMMARY
+        echo "- system-service" >> $GITHUB_STEP_SUMMARY

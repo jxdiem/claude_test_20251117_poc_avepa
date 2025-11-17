@@ -28,6 +28,73 @@ Il sistema è composto da 7 microservizi:
 - **Autenticazione**: JWT
 - **API Gateway**: FastAPI con routing centralizzato
 - **Deployment**: Docker Compose (sviluppo) / Railway (produzione)
+- **CI/CD**: GitHub Actions con SAST e linting
+
+## CI/CD Pipeline
+
+Il progetto include una pipeline completa di CI/CD tramite GitHub Actions che si attiva ad ogni push e pull request.
+
+### Pipeline Stages
+
+1. **Linting e Code Quality**
+   - **Black**: Verifica formattazione del codice
+   - **isort**: Verifica ordinamento import
+   - **Flake8**: Controllo PEP 8 e qualità codice
+   - **Pylint**: Analisi statica approfondita
+
+2. **Security Analysis (SAST)**
+   - **Bandit**: Scansione vulnerabilità nel codice Python
+   - **Safety**: Controllo dipendenze per CVE noti
+   - **Semgrep**: Pattern matching per vulnerabilità OWASP Top 10
+
+3. **Docker Build**
+   - Build automatico di tutte le 7 immagini Docker
+   - Push su GitHub Container Registry
+   - Tagging automatico (branch, SHA, latest)
+   - Cache layer per build veloci
+
+4. **Artifacts**
+   - Report di sicurezza (Bandit, Semgrep)
+   - Disponibili nella sezione Actions
+
+### Immagini Docker
+
+Le immagini sono disponibili su GitHub Container Registry:
+
+```bash
+# Pull immagini
+docker pull ghcr.io/jxdiem/claude_test_20251117_poc_avepa/api-gateway:latest
+docker pull ghcr.io/jxdiem/claude_test_20251117_poc_avepa/auth-service:latest
+docker pull ghcr.io/jxdiem/claude_test_20251117_poc_avepa/beneficiary-service:latest
+docker pull ghcr.io/jxdiem/claude_test_20251117_poc_avepa/request-service:latest
+docker pull ghcr.io/jxdiem/claude_test_20251117_poc_avepa/calculation-service:latest
+docker pull ghcr.io/jxdiem/claude_test_20251117_poc_avepa/admin-service:latest
+docker pull ghcr.io/jxdiem/claude_test_20251117_poc_avepa/system-service:latest
+```
+
+### Badge Status
+
+Aggiungi questi badge al README per mostrare lo stato della pipeline:
+
+```markdown
+![CI/CD Pipeline](https://github.com/jxdiem/claude_test_20251117_poc_avepa/actions/workflows/ci-cd.yml/badge.svg)
+```
+
+### Eseguire Controlli Localmente
+
+```bash
+# Linting
+pip install black flake8 pylint isort
+black --check shared/ services/ api-gateway/
+flake8 shared/ services/ api-gateway/
+pylint shared/ services/ api-gateway/
+
+# Security
+pip install bandit safety semgrep
+bandit -r shared/ services/ api-gateway/
+safety check --file requirements.txt
+semgrep --config=auto shared/ services/ api-gateway/
+```
 
 ## Installazione e Avvio
 
@@ -315,11 +382,30 @@ Configura le variabili d'ambiente per ogni servizio con gli URL interni Railway.
 
 ## Sicurezza
 
-- Password hashate con PBKDF2-HMAC-SHA256
+Il progetto implementa diverse misure di sicurezza e controlli automatici:
+
+### Sicurezza del Codice
+- Password hashate con PBKDF2-HMAC-SHA256 + salt
 - JWT con expiration (access: 30min, refresh: 7 giorni)
 - Validazione input con Pydantic
 - CORS configurabile
-- Rate limiting su API Gateway (da implementare)
+- Prepared statements per SQL (protezione SQL injection)
+- Health checks configurati su tutti i container
+
+### Pipeline di Sicurezza
+- **SAST automatico** con Bandit, Semgrep
+- **Dependency scanning** con Safety
+- **Code quality** con Flake8, Pylint
+- Report di sicurezza ad ogni push
+
+### Best Practices
+- Secrets tramite environment variables
+- No hardcoded credentials
+- Docker images con immagini base ufficiali
+- Audit logging completo
+- Rate limiting (da implementare in produzione)
+
+Per maggiori dettagli consulta [SECURITY.md](SECURITY.md)
 
 ## Testing
 
