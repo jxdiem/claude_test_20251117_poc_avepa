@@ -309,44 +309,45 @@ Ogni servizio espone la documentazione Swagger:
 
 ## Deployment su Railway
 
-### 1. Preparazione
+Hai **2 opzioni** per deployare su Railway:
 
-1. Crea account su [Railway](https://railway.app)
-2. Installa Railway CLI:
-```bash
-npm i -g @railway/cli
-```
+### ⭐ Opzione A: Single Service (GRATUITO - Consigliato)
 
-3. Login:
-```bash
-railway login
-```
+Deploy di **tutti i 7 microservizi + frontend** in UN solo servizio Railway.
 
-### 2. Deploy
+**Vantaggi:**
+- ✅ **Gratuito** o quasi ($0-10/mese)
+- ✅ Setup **semplicissimo** (5 minuti)
+- ✅ Tutto incluso in un container
 
-```bash
-# Inizializza progetto Railway
-railway init
+**Guida completa:** [DEPLOY_RAILWAY_SINGLE.md](DEPLOY_RAILWAY_SINGLE.md)
 
-# Imposta variabili d'ambiente
-railway variables set SECRET_KEY=your-production-secret-key
+**Quick Start:**
+1. Crea account su [Railway.app](https://railway.app)
+2. New Project → Deploy from GitHub repo
+3. Seleziona questo repository
+4. Aggiungi variabile: `SECRET_KEY=<genera-chiave-sicura>`
+5. Deploy automatico! 🚀
 
-# Deploy
-railway up
-```
+---
 
-### 3. Configurazione Servizi
+### Opzione B: Multi-Service (7 servizi separati)
 
-Crea un servizio Railway per ogni microservizio:
-- api-gateway
-- auth-service
-- beneficiary-service
-- request-service
-- calculation-service
-- admin-service
-- system-service
+Deploy di ogni microservizio come servizio Railway separato.
 
-Configura le variabili d'ambiente per ogni servizio con gli URL interni Railway.
+**Vantaggi:**
+- ✅ Vera architettura microservizi
+- ✅ Scaling indipendente per servizio
+
+**Svantaggi:**
+- ❌ Richiede piano a pagamento (~$15-25/mese)
+- ❌ Setup più complesso
+
+**Guida completa:** [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)
+
+---
+
+**💡 Raccomandazione:** Usa **Opzione A** per demo/sviluppo, **Opzione B** per produzione con alto traffico.
 
 ## Struttura Database
 

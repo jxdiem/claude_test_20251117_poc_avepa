@@ -1,0 +1,51 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Installa dipendenze di sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia tutti i requirements e crea un unico file
+COPY services/auth/requirements.txt /tmp/req-auth.txt
+COPY services/beneficiary/requirements.txt /tmp/req-beneficiary.txt
+COPY services/request/requirements.txt /tmp/req-request.txt
+COPY services/calculation/requirements.txt /tmp/req-calculation.txt
+COPY services/admin/requirements.txt /tmp/req-admin.txt
+COPY services/system/requirements.txt /tmp/req-system.txt
+COPY api-gateway/requirements.txt /tmp/req-gateway.txt
+
+# Installa tutte le dipendenze (rimuove duplicati automaticamente)
+RUN pip install --no-cache-dir \
+    fastapi==0.104.1 \
+    uvicorn[standard]==0.24.0 \
+    pydantic==2.5.0 \
+    pydantic[email]==2.5.0 \
+    PyJWT==2.8.0 \
+    httpx==0.25.1 \
+    python-multipart==0.0.6
+
+# Copia tutto il codice
+COPY shared/ /app/shared/
+COPY services/ /app/services/
+COPY api-gateway/ /app/api-gateway/
+COPY frontend/ /app/frontend/
+
+# Crea directory per database
+RUN mkdir -p /app/databases
+
+# Copia configurazione supervisord
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copia script di startup
+COPY railway-start.sh /app/railway-start.sh
+RUN chmod +x /app/railway-start.sh
+
+# Railway espone automaticamente la porta tramite $PORT
+# L'API Gateway userà questa porta
+ENV PORT=8000
+
+# Avvia supervisord
+CMD ["/app/railway-start.sh"]

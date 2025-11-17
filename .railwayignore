@@ -1,0 +1,56 @@
+# Railway ignore file
+# Simile a .dockerignore
+
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+venv
+env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+!README.md
+
+# Local development
+docker-compose.yml
+.env.example
+
+# Database locale (saranno creati su Railway)
+databases/*.db
+databases/*.db-journal
+databases/*.db-wal
+
+# Tests
+tests/
+*.test.py
+
+# CI/CD
+.github/
+
+# Altri Dockerfile non usati
+Dockerfile.base
+services/*/Dockerfile
+api-gateway/Dockerfile
