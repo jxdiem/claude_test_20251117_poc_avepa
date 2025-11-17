@@ -4,6 +4,7 @@ API Gateway - Entry point centralizzato per tutti i microservizi
 from fastapi import FastAPI, HTTPException, Depends, status, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 import httpx
 from typing import Optional
 import sys
@@ -164,9 +165,9 @@ async def proxy_request(
             )
 
 
-# Root endpoint
-@app.get("/")
-async def root():
+# Root endpoint (Health check per Railway)
+@app.get("/health")
+async def health():
     """Health check API Gateway"""
     return {
         "service": "api-gateway",
@@ -297,6 +298,12 @@ async def system_health(request: Request, current_user: dict = Depends(get_curre
             detail="Solo i sistemisti possono accedere al monitoring"
         )
     return await proxy_request("system", "/health", "GET", request)
+
+
+# Mount static files (frontend) - deve essere dopo tutti gli endpoint API
+frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 
 
 if __name__ == "__main__":

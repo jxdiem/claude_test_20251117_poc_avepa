@@ -30,8 +30,7 @@ echo "  - Request Service (8003)"
 echo "  - Calculation Service (8004)"
 echo "  - Admin Service (8005)"
 echo "  - System Service (8006)"
-echo "  - API Gateway ($PORT) ← PUBLIC"
-echo "  - Frontend (3000) ← Internal"
+echo "  - API Gateway ($PORT) ← PUBLIC (includes static frontend)"
 echo ""
 
 # Avvia supervisord
