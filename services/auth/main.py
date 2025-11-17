@@ -49,7 +49,7 @@ db = DatabaseManager(DB_PATH)
 # Inizializza database
 def init_database():
     """Inizializza il database con lo schema"""
-    init_script_path = os.path.join(settings.DATABASE_DIR, "init_scripts", "init_auth.sql")
+    init_script_path = os.path.join(settings.INIT_SCRIPTS_DIR, "init_auth.sql")
     if os.path.exists(init_script_path):
         with open(init_script_path, 'r') as f:
             db.execute_script(f.read())

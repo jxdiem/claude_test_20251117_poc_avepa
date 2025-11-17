@@ -9,16 +9,19 @@ echo "🔐 SECRET_KEY: ${SECRET_KEY:0:10}..."
 # Crea directory databases se non esiste
 mkdir -p /app/databases
 
-# Imposta DATABASE_DIR per tutti i servizi
+# Imposta DATABASE_DIR e INIT_SCRIPTS_DIR per tutti i servizi
+# IMPORTANTE: INIT_SCRIPTS_DIR deve essere FUORI da /app/databases
+# perché Railway monta un volume su /app/databases che sovrascrive il contenuto
 export DATABASE_DIR="/app/databases"
+export INIT_SCRIPTS_DIR="/app/init_scripts"
 
 # Verifica che gli script di inizializzazione esistano
 echo "🔍 Checking database initialization scripts..."
-if [ -d "/app/databases/init_scripts" ]; then
-    echo "✅ Init scripts directory found"
-    ls -la /app/databases/init_scripts/
+if [ -d "$INIT_SCRIPTS_DIR" ]; then
+    echo "✅ Init scripts directory found at: $INIT_SCRIPTS_DIR"
+    ls -la "$INIT_SCRIPTS_DIR"
 else
-    echo "❌ Init scripts directory NOT found!"
+    echo "❌ Init scripts directory NOT found at: $INIT_SCRIPTS_DIR"
 fi
 
 # Verifica che SECRET_KEY sia impostato

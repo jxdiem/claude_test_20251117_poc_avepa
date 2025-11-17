@@ -40,7 +40,7 @@ admin_db = DatabaseManager(ADMIN_DB_PATH)
 
 
 def init_database():
-    init_script_path = os.path.join(settings.DATABASE_DIR, "init_scripts", "init_calculation.sql")
+    init_script_path = os.path.join(settings.INIT_SCRIPTS_DIR, "init_calculation.sql")
     if os.path.exists(init_script_path):
         with open(init_script_path, 'r') as f:
             db.execute_script(f.read())

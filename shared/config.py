@@ -15,6 +15,7 @@ class Settings:
 
     # Database Settings
     DATABASE_DIR: str = os.getenv("DATABASE_DIR", "./databases")
+    INIT_SCRIPTS_DIR: str = os.getenv("INIT_SCRIPTS_DIR", "./databases/init_scripts")
 
     # API Settings
     API_V1_PREFIX: str = "/api/v1"
