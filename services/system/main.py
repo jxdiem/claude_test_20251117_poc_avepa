@@ -221,4 +221,6 @@ async def get_audit_logs(limit: int = 100, authorization: str = Header(None)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=settings.SYSTEM_SERVICE_PORT)
+    # Railway usa la variabile PORT, altrimenti usa la porta di default
+    port = int(os.getenv("PORT", settings.SYSTEM_SERVICE_PORT))
+    uvicorn.run(app, host="0.0.0.0", port=port)

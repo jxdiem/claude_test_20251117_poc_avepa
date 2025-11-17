@@ -211,4 +211,6 @@ async def respingi_domanda(domanda_id: int, motivo: str, authorization: str = He
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=settings.REQUEST_SERVICE_PORT)
+    # Railway usa la variabile PORT, altrimenti usa la porta di default
+    port = int(os.getenv("PORT", settings.REQUEST_SERVICE_PORT))
+    uvicorn.run(app, host="0.0.0.0", port=port)
