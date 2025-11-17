@@ -120,7 +120,10 @@ class ParticellaCatastaleCreate(BaseModel):
     particella: str = Field(..., max_length=20)
     subalterno: Optional[str] = Field(None, max_length=20)
     superficie_mq: float = Field(..., gt=0)
-    coordinate_geojson: Optional[str] = None
+    superficie_calcolata_mq: Optional[float] = Field(None, gt=0)
+    coordinate_geojson: Optional[str] = None  # GeoJSON Polygon/MultiPolygon
+    centroid_lat: Optional[float] = Field(None, ge=-90, le=90)
+    centroid_lng: Optional[float] = Field(None, ge=-180, le=180)
 
 
 class MacchinarioCreate(BaseModel):

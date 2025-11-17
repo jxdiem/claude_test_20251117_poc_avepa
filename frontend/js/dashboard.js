@@ -94,7 +94,14 @@ const Dashboard = {
 
             const fascicolo = fascicoli[0]; // Prendi il primo fascicolo
             container.innerHTML = this.renderFascicolo(fascicolo);
-            this.setupParticelleManagement(fascicolo.id);
+
+            // Inizializza gestione particelle con mappa
+            if (typeof ParticelleManager !== 'undefined') {
+                ParticelleManager.init(fascicolo.id);
+            } else {
+                // Fallback per compatibilità
+                this.setupParticelleManagement(fascicolo.id);
+            }
 
         } catch (error) {
             console.error('Error loading fascicolo:', error);
@@ -157,11 +164,7 @@ const Dashboard = {
                 <p><strong>Email:</strong> ${fascicolo.email || '-'}</p>
             </div>
 
-            <div class="card">
-                <h3>Particelle Catastali</h3>
-                <div id="particelle-list"></div>
-                <button class="btn btn-primary btn-sm" id="btn-add-particella">Aggiungi Particella</button>
-            </div>
+            <div id="particelle-section"></div>
         `;
     },
 

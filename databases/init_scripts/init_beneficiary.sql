@@ -38,7 +38,10 @@ CREATE TABLE IF NOT EXISTS particelle_catastali (
     particella TEXT NOT NULL,
     subalterno TEXT,
     superficie_mq REAL NOT NULL,
-    coordinate_geojson TEXT,
+    superficie_calcolata_mq REAL,  -- Area calcolata dalla geometria disegnata
+    coordinate_geojson TEXT,  -- Geometria in formato GeoJSON (Polygon o MultiPolygon)
+    centroid_lat REAL,  -- Latitudine centroide per zoom rapido
+    centroid_lng REAL,  -- Longitudine centroide per zoom rapido
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (fascicolo_id) REFERENCES fascicoli (id) ON DELETE CASCADE

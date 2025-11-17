@@ -427,3 +427,127 @@ table tr:hover {
         gap: 15px;
     }
 }
+
+/* Map Styles */
+.map-container {
+    width: 100%;
+    height: 600px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 20px 0;
+}
+
+#particelle-map {
+    width: 100%;
+    height: 100%;
+}
+
+.map-info-panel {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.map-info-panel h4 {
+    margin-bottom: 10px;
+    color: #667eea;
+}
+
+.map-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.map-stat-item {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.map-stat-item label {
+    display: block;
+    font-size: 0.85em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.map-stat-item strong {
+    font-size: 1.2em;
+    color: #333;
+}
+
+.particelle-list {
+    margin-top: 20px;
+}
+
+.particella-item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.particella-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.particella-info h4 {
+    margin-bottom: 5px;
+    color: #667eea;
+}
+
+.particella-info p {
+    font-size: 0.9em;
+    color: #666;
+    margin: 3px 0;
+}
+
+.particella-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-map-zoom {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.3s;
+}
+
+.btn-map-zoom:hover {
+    background: #5568d3;
+}
+
+.geometry-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    margin-left: 10px;
+}
+
+.geometry-badge.has-geometry {
+    background: #d4edda;
+    color: #155724;
+}
+
+.geometry-badge.no-geometry {
+    background: #f8d7da;
+    color: #721c24;
+}

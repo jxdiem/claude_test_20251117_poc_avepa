@@ -337,8 +337,9 @@ async def create_particella(
     # Inserisci particella
     particella_id = db.execute_update(
         """INSERT INTO particelle_catastali
-           (fascicolo_id, comune, foglio, particella, subalterno, superficie_mq, coordinate_geojson)
-           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+           (fascicolo_id, comune, foglio, particella, subalterno, superficie_mq,
+            superficie_calcolata_mq, coordinate_geojson, centroid_lat, centroid_lng)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             fascicolo_id,
             particella_data.comune,
@@ -346,7 +347,10 @@ async def create_particella(
             particella_data.particella,
             particella_data.subalterno,
             particella_data.superficie_mq,
-            particella_data.coordinate_geojson
+            particella_data.superficie_calcolata_mq,
+            particella_data.coordinate_geojson,
+            particella_data.centroid_lat,
+            particella_data.centroid_lng
         )
     )
 
